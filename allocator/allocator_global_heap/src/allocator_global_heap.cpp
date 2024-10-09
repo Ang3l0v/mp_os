@@ -3,9 +3,9 @@
 #include "../include/allocator_global_heap.h"
 
 allocator_global_heap::allocator_global_heap(
-    logger *logger)
+    logger *logger):_logger(logger)
 {
-    throw not_implemented("allocator_global_heap::allocator_global_heap(logger *)", "your code should be here...");
+    //throw not_implemented("allocator_global_heap::allocator_global_heap(logger *)", "your code should be here...");
 }
 
 allocator_global_heap::~allocator_global_heap()
@@ -16,19 +16,31 @@ allocator_global_heap::~allocator_global_heap()
 allocator_global_heap::allocator_global_heap(
     allocator_global_heap &&other) noexcept
 {
-    throw not_implemented("allocator_global_heap::allocator_global_heap(allocator_global_heap &&) noexcept", "your code should be here...");
+    _logger = other._logger;
+    other._logger = nullptr;
+    //throw not_implemented("allocator_global_heap::allocator_global_heap(allocator_global_heap &&) noexcept", "your code should be here...");
 }
 
 allocator_global_heap &allocator_global_heap::operator=(
     allocator_global_heap &&other) noexcept
 {
-    throw not_implemented("allocator_global_heap &allocator_global_heap::operator=(allocator_global_heap &&) noexcept", "your code should be here...");
+    if (this == &other)
+    {
+        return *this;
+    }
+
+    _logger = other._logger;
+    other._logger = nullptr;
+
+    //throw not_implemented("allocator_global_heap &allocator_global_heap::operator=(allocator_global_heap &&) noexcept", "your code should be here...");
 }
 
 [[nodiscard]] void *allocator_global_heap::allocate(
     size_t value_size,
     size_t values_count)
 {
+
+
     throw not_implemented("[[nodiscard]] void *allocator_global_heap::allocate(size_t, size_t)", "your code should be here...");
 }
 
