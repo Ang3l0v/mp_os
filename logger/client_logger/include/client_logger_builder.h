@@ -6,6 +6,13 @@
 class client_logger_builder final:
     public logger_builder
 {
+protected:
+
+    std::map<std::string , std::string> _b_streams;
+
+    std::string _b_message_format;
+
+    std::string _b_formated_message;
 
 public:
 

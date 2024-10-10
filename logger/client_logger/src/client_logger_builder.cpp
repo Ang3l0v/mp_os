@@ -4,11 +4,15 @@
 
 client_logger_builder::client_logger_builder()
 {
+
     throw not_implemented("client_logger_builder::client_logger_builder()", "your code should be here...");
 }
 
 client_logger_builder::client_logger_builder(
     client_logger_builder const &other)
+        :_b_streams(other._b_streams),
+         _b_message_format(other._b_message_format),
+         _b_formated_message(other._b_formated_message)
 {
     throw not_implemented("client_logger_builder::client_logger_builder(client_logger_builder const &other)", "your code should be here...");
 }

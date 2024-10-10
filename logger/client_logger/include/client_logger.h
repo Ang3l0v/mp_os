@@ -3,10 +3,22 @@
 
 #include <logger.h>
 #include "client_logger_builder.h"
-
+#include <map>
+#include <mutex>
 class client_logger final:
     public logger
 {
+
+private:
+
+    std::map<std::string , std::string> _streams;
+
+    std::string _message_format;
+
+    std::string _formated_message;
+
+   // friend class client_logger_builder;
+
 
 public:
 
