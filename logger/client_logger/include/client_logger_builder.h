@@ -2,17 +2,19 @@
 #define MATH_PRACTICE_AND_OPERATING_SYSTEMS_CLIENT_LOGGER_BUILDER_H
 
 #include <logger_builder.h>
+#include <map>
+#include <string>
 
 class client_logger_builder final:
     public logger_builder
 {
 protected:
 
-    std::map<std::string , std::string> _b_streams;
+    std::map<std::string , std::string> _streams;
 
-    std::string _b_message_format;
+    std::string _message_format;
 
-    std::string _b_formated_message;
+    std::string _formated_message;
 
 public:
 

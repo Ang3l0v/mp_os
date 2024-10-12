@@ -17,10 +17,13 @@ private:
 
     std::string _formated_message;
 
-   // friend class client_logger_builder;
+    friend class client_logger_builder;
 
 
 public:
+
+    client_logger() = default;
+
 
     client_logger(
         client_logger const &other);

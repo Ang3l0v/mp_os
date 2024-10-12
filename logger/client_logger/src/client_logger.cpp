@@ -3,7 +3,7 @@
 #include "../include/client_logger.h"
 
 #include <map>
-#include <pair>
+#include <utility>
 
 client_logger::client_logger(
     client_logger const &other)
