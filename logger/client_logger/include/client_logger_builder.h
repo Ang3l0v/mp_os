@@ -14,7 +14,7 @@ protected:
 
     std::string _message_format;
 
-    std::string _formated_message;
+    //std::string _formated_message;
 
 public:
 

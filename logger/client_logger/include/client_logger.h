@@ -5,6 +5,9 @@
 #include "client_logger_builder.h"
 #include <map>
 #include <mutex>
+#include <string>
+
+
 class client_logger final:
     public logger
 {
@@ -15,7 +18,7 @@ private:
 
     std::string _message_format;
 
-    std::string _formated_message;
+    //std::string _formated_message;
 
     friend class client_logger_builder;
 

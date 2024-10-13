@@ -2,11 +2,19 @@
 #define MATH_PRACTICE_AND_OPERATING_SYSTEMS_LOGGER_H
 
 #include <iostream>
+#include <string>
+
+
 
 class logger
 {
 
 public:
+
+
+    friend class client_logger_builder;
+
+
 
     enum class severity
     {
