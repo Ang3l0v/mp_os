@@ -5,7 +5,7 @@
 #include <logger.h>
 #include <logger_guardant.h>
 #include <typename_holder.h>
-
+#include <mutex>
 class allocator_global_heap final:
     public allocator,
     private logger_guardant,
@@ -15,6 +15,10 @@ class allocator_global_heap final:
 private:
     
     logger *_logger;
+
+    void* heap_start = nullptr;
+
+    std::mutex _mutex;
 
 public:
     
@@ -59,6 +63,17 @@ private:
 
 public:
 
+    void* find_free_block(size_t size);
+
+    bool is_block_free(void* block) const;
+
+    size_t get_block_size(void* block) const;
+
+    void set_block_size(void* block, bool free);
+
+    void* get_next_block(void* block) const;
+
+    void set_block_free(void* block, bool free);
 };
 
 #endif //MATH_PRACTICE_AND_OPERATING_SYSTEMS_ALLOCATOR_ALLOCATOR_GLOBAL_HEAP_H
