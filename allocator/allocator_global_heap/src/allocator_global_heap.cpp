@@ -4,20 +4,13 @@
 
 #include <mutex>
 
-void* allocator_global_heap::find_free_block(size_t size)
-{
-    void* current = heap_start;
 
-    while (current)
-    {
-        if (is_block_free(current) && get_block_size(current) >= size)
-        {
-            return current;
-        }
-        current = get_next_block(current);
-    }
-    return nullptr;
+
+void allocator_global_heap::set_block_size(void *block, size_t size)
+{
+    *reinterpret_cast<size_t*>(block) = size;
 }
+
 
 bool allocator_global_heap::is_block_free(void *block) const
 {
@@ -35,13 +28,11 @@ void *allocator_global_heap::get_next_block(void *block) const
     return *reinterpret_cast<void**>(reinterpret_cast<char*>(block) + sizeof(size_t) + sizeof(bool));
 }
 
-void allocator_global_heap::set_block_size(void* block, bool free)
-{
 
-}
 
 void allocator_global_heap::set_block_free(void *block, bool free)
 {
+    *reinterpret_cast<bool*>(reinterpret_cast<char*>(block) + sizeof(size_t)) = free;
 
 }
 
@@ -82,7 +73,7 @@ allocator_global_heap &allocator_global_heap::operator=(
     size_t value_size,
     size_t values_count)
 {
-    std::lock_guard<std::mutex> lock(_mutex);
+    //std::lock_guard<std::mutex> lock(_mutex);
 
     size_t total_size = value_size * values_count;
 
@@ -91,24 +82,15 @@ allocator_global_heap &allocator_global_heap::operator=(
         return nullptr;
     }
 
-    void* block = find_free_block(total_size);
 
-    if (!block)
-    {
-        return nullptr;
-    }
 
-    size_t remaining_size = get_block_size(block) - total_size - METADATA_SIZE;
+    void* block = ::operator new(total_size + sizeof(size_t) + sizeof(bool));
 
-    if (remaining_size > 0)
-    {
-        void* next_block = reinterpret_cast<char*>(block) + METADATA_SIZE + total_size;
-        set_block_size(next_block, remaining_size);
-        set_block_free(next_block, true);
-        set_next_block(next_block, get_next_block(block));
-        set_block_size(block, total_size);
-        set_next_block(block, next_block);
-    }
+    set_block_size(block, total_size);
+
+    //TODO: logger
+
+    return reinterpret_cast<char*>(block) + sizeof(size_t) + sizeof(bool);
 
 
     //throw not_implemented("[[nodiscard]] void *allocator_global_heap::allocate(size_t, size_t)", "your code should be here...");
@@ -117,7 +99,20 @@ allocator_global_heap &allocator_global_heap::operator=(
 void allocator_global_heap::deallocate(
     void *at)
 {
-    throw not_implemented("void allocator_global_heap::deallocate(void *)", "your code should be here...");
+
+    if (!at)
+    {
+        return;
+    }
+
+    void* block = reinterpret_cast<char*>(at) - sizeof(bool) - sizeof(size_t);
+
+    set_block_free(block, true);
+
+    ::operator delete(block);
+
+    //TODO: logger
+    //throw not_implemented("void allocator_global_heap::deallocate(void *)", "your code should be here...");
 }
 
 inline logger *allocator_global_heap::get_logger() const
