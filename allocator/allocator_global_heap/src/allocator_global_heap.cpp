@@ -117,11 +117,13 @@ void allocator_global_heap::deallocate(
 
 inline logger *allocator_global_heap::get_logger() const
 {
+    return _logger;
     throw not_implemented("inline logger *allocator_global_heap::get_logger() const", "your code should be here...");
 }
 
 inline std::string allocator_global_heap::get_typename() const noexcept
 {
+    return "allocator_global_heap";
     throw not_implemented("inline std::string allocator_global_heap::get_typename() const noexcept", "your code should be here...");
 }
 
