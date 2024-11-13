@@ -14,6 +14,7 @@
 template<
     typename tkey,
     typename tvalue>
+
 class binary_search_tree:
     public search_tree<tkey, tvalue>
 {
@@ -2016,6 +2017,17 @@ void binary_search_tree<tkey, tvalue>::small_left_rotation(
     binary_search_tree<tkey, tvalue>::node *&subtree_root,
     bool validate) const
 {
+    if (validate)
+    {
+        if (subtree_root == nullptr || subtree_root->right_subtree == nullptr)
+        {
+            return;
+        }
+
+        node* new_root = subtree_root->right;
+        std::swap(subtree_root->right, new_root->left);
+        std::swap(subtree_root, new_root);
+    }
     throw not_implemented("template<typename tkey, typename tvalue> void binary_search_tree<tkey, tvalue>::small_left_rotation(binary_search_tree<tkey, tvalue>::node *&, bool) const", "your code should be here...");
 }
 
@@ -2026,6 +2038,18 @@ void binary_search_tree<tkey, tvalue>::small_right_rotation(
     binary_search_tree<tkey, tvalue>::node *&subtree_root,
     bool validate) const
 {
+    if (validate)
+    {
+        if (subtree_root == nullptr || subtree_root->left_subtree == nullptr)
+        {
+            return;
+        }
+    }
+
+    node* new_root = subtree_root->left_subtree;
+    std::swap(subtree_root->left_subtree, new_root->right_subtree);
+    std::swap(subtree_root, new_root);
+
     throw not_implemented("template<typename tkey, typename tvalue> void binary_search_tree<tkey, tvalue>::small_right_rotation(binary_search_tree<tkey, tvalue>::node *&, bool) const", "your code should be here...");
 }
 
@@ -2036,6 +2060,16 @@ void binary_search_tree<tkey, tvalue>::big_left_rotation(
     binary_search_tree<tkey, tvalue>::node *&subtree_root,
     bool validate) const
 {
+    if (validate)
+    {
+        if (subtree_root == nullptr || subtree_root->right_subtree == nullptr)
+        {
+            return;
+        }
+    }
+
+    small_right_rotation(subtree_root->right, false);
+    small_left_rotation(subtree_root, false);
     throw not_implemented("template<typename tkey, typename tvalue> void binary_search_tree<tkey, tvalue>::big_left_rotation(binary_search_tree<tkey, tvalue>::node *&, bool) const", "your code should be here...");
 }
 
@@ -2046,6 +2080,17 @@ void binary_search_tree<tkey, tvalue>::big_right_rotation(
     binary_search_tree<tkey, tvalue>::node *&subtree_root,
     bool validate) const
 {
+    if (validate)
+    {
+        if (subtree_root == nullptr || subtree_root->right_subtree == nullptr)
+        {
+            return;
+        }
+    }
+
+    small_left_rotation(subtree_root->left_subtree, false);
+    small_right_rotation(subtree_root, false);
+
     throw not_implemented("template<typename tkey, typename tvalue> void binary_search_tree<tkey, tvalue>::big_right_rotation(binary_search_tree<tkey, tvalue>::node *&, bool) const", "your code should be here...");
 }
 
