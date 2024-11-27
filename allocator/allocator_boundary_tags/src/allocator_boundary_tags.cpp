@@ -1,7 +1,7 @@
 #include <not_implemented.h>
 
 #include "../include/allocator_boundary_tags.h"
-
+#include <vector>
 
 void allocator_boundary_tags::coalesce(void* block)
 {
@@ -97,6 +97,19 @@ allocator_boundary_tags::allocator_boundary_tags(
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
     throw not_implemented("allocator_boundary_tags::allocator_boundary_tags(size_t, allocator *, logger *, allocator_with_fit_mode::fit_mode)", "your code should be here...");
 }
 
@@ -107,20 +120,19 @@ allocator_boundary_tags::allocator_boundary_tags(
     size_t values_count)
 {
 
-    size_t requested_size = values_count * value_size + sizeof(size_t) * 2;
 
-    void* current = _trusted_memory;
 
-    while (current < static_cast<char*>(_trusted_memory) + get_total_size()) {
-        if (is_block_free(current) && get_block_size(current) >= requested_size) {
-            split_block(current, requested_size);
-            set_block_free(current, false);
-            return static_cast<char*>(current) + sizeof(size_t);
-        }
-        current = get_next_block(current);
-    }
 
-    throw std::bad_alloc();
+
+
+
+
+
+
+
+
+
+
 
     throw not_implemented("[[nodiscard]] void *allocator_boundary_tags::allocate(size_t, size_t)", "your code should be here...");
 }
@@ -141,25 +153,39 @@ void allocator_boundary_tags::deallocate(
 inline void allocator_boundary_tags::set_fit_mode(
     allocator_with_fit_mode::fit_mode mode)
 {
+
     throw not_implemented("inline void allocator_boundary_tags::set_fit_mode(allocator_with_fit_mode::fit_mode)", "your code should be here...");
 }
 
 inline allocator *allocator_boundary_tags::get_allocator() const
 {
+
+
     throw not_implemented("inline allocator *allocator_boundary_tags::get_allocator() const", "your code should be here...");
 }
 
 std::vector<allocator_test_utils::block_info> allocator_boundary_tags::get_blocks_info() const noexcept
 {
+    std::vector<block_info> blocks;
+    void* current = _trusted_memory;
+
+    while (current < static_cast<char*>(_trusted_memory) + get_total_size()) {
+        blocks.push_back({ current, is_block_free(current), get_block_size(current) });
+        current = get_next_block(current);
+    }
+
+    return blocks;
     throw not_implemented("std::vector<allocator_test_utils::block_info> allocator_boundary_tags::get_blocks_info() const noexcept", "your code should be here...");
 }
 
 inline logger *allocator_boundary_tags::get_logger() const
 {
+    //return logger сделать логгер
     throw not_implemented("inline logger *allocator_boundary_tags::get_logger() const", "your code should be here...");
 }
 
 inline std::string allocator_boundary_tags::get_typename() const noexcept
 {
+    return "allocator_boundary_tags";
     throw not_implemented("inline std::string allocator_boundary_tags::get_typename() const noexcept", "your code should be here...");
 }
