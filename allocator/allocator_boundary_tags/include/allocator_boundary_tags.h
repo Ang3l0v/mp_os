@@ -24,16 +24,16 @@ public:
     ~allocator_boundary_tags() override;
     
     allocator_boundary_tags(
-        allocator_boundary_tags const &other);
+        allocator_boundary_tags const &other) = delete;
     
     allocator_boundary_tags &operator=(
-        allocator_boundary_tags const &other);
+        allocator_boundary_tags const &other) = delete;
     
     allocator_boundary_tags(
         allocator_boundary_tags &&other) noexcept;
     
     allocator_boundary_tags &operator=(
-        allocator_boundary_tags &&other) noexcept;
+        allocator_boundary_tags &&other) noexcept = delete;
 
 public:
     
@@ -72,7 +72,62 @@ private:
 private:
     
     inline std::string get_typename() const noexcept override;
-    
+
+private:
+
+    void set_block_size(void* block, size_t size)
+    {
+        *reinterpret_cast<size_t*>(block) = size;
+    }
+
+    size_t get_block_size(void* block) const
+    {
+        return *reinterpret_cast<size_t*>(block);
+    }
+
+    bool is_block_free(void* block) const
+    {
+        return *reinterpret_cast<bool*>(static_cast<char*>(block) + sizeof(size_t));
+    }
+
+    void set_boundary_tag(void* block, size_t size)
+    {
+        *reinterpret_cast<size_t*>(static_cast<char*>(block) + size - sizeof(size_t)) = size;
+    }
+
+
+    void* get_next_block(void* block) const
+    {
+        return static_cast<char*>(block) + get_block_size(block);
+    }
+
+
+    void* get_previous_block(void* block) const
+    {
+        size_t previous_size = *reinterpret_cast<size_t *>(static_cast<char *>(block) - sizeof(size_t));
+        return static_cast<char *>(block) - previous_size;
+    }
+
+    void set_block_free(void* block, bool is_free)
+    {
+
+        *reinterpret_cast<bool*>(static_cast<char*>(block) + sizeof(size_t)) = is_free;
+
+    }
+
+    size_t get_total_size() const
+    {
+
+        return get_block_size(_trusted_memory);
+
+    }
+
+
+    void coalesce(void* block);
+
+    void split_block(void* block, size_t requested_size);
+
+
 };
 
 #endif //MATH_PRACTICE_AND_OPERATING_SYSTEMS_ALLOCATOR_ALLOCATOR_BOUNDARY_TAGS_H
