@@ -70,6 +70,7 @@ allocator_boundary_tags::allocator_boundary_tags(
     size_t value_size,
     size_t values_count)
 {
+
     throw not_implemented("[[nodiscard]] void *allocator_boundary_tags::allocate(size_t, size_t)", "your code should be here...");
 }
 

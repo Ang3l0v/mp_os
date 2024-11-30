@@ -143,11 +143,43 @@ private:
         return *reinterpret_cast<std::mutex*>(static_cast<char*>(_trusted_memory) + sizeof(size_t) * 3);
     }
 
+    void* get_data_start() const
+    {
+        return static_cast<char*>(_trusted_memory) + sizeof(size_t) * 5;
+    }
+
+    void* get_memory_end()
+    {
+        return static_cast<char*>(_trusted_memory) + get_total_size();
+    }
+
     void* get_fit_mode_adress() const
     {
         return static_cast<char*>(_trusted_memory) + sizeof(size_t) * 4;
     }
 
+    void split_block(void* block, size_t requested_size)
+    {
+        size_t block_size = get_block_size(block);
+
+        if (block_size > requested_size + sizeof(size_t) * 2)
+        {
+            void* next_block =  static_cast<char*>(block) + requested_size;
+            set_block_size(next_block, block_size - requested_size);
+            set_block_free(next_block, true);
+            set_block_size(block, requested_size);
+        }
+    }
+
+    void coalesce(void* block)
+    {
+        // Объединение соседних свободных блоков
+        void* next_block = get_next_block(block);
+        if (next_block < get_memory_end() && is_block_free(next_block))
+        {
+            set_block_size(block, get_block_size(block) + get_block_size(next_block));
+        }
+    }
 
 
 };
