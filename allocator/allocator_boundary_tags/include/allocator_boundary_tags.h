@@ -6,7 +6,7 @@
 #include <allocator_with_fit_mode.h>
 #include <logger_guardant.h>
 #include <typename_holder.h>
-
+#include <mutex>
 class allocator_boundary_tags final:
     private allocator_guardant,
     public allocator_test_utils,
@@ -59,7 +59,7 @@ public:
 
 private:
     
-    inline allocator *get_allocator() const override;
+    //inline allocator *get_allocator() const override;
 
 public:
     
@@ -67,17 +67,55 @@ public:
 
 private:
     
-    inline logger *get_logger() const override;
+    //inline logger *get_logger() const override;
 
 private:
     
     inline std::string get_typename() const noexcept override;
 
+public:
+
+
 private:
+
+    void* get_next_block(void* block) const
+    {
+        return static_cast<char*>(block) + get_block_size(block);
+    }
+
+    void set_block_free(void* block, bool is_free)
+    {
+        *reinterpret_cast<bool*>(static_cast<char*>(block) + sizeof(size_t)) = is_free;
+    }
+
+    bool is_block_free(void* block)
+    {
+        return *reinterpret_cast<bool*>(static_cast<char*>(block) + sizeof(size_t));
+    }
 
     void set_block_size(void* block, size_t size)
     {
         *reinterpret_cast<size_t*>(block) = size;
+    }
+
+    void set_total_size(size_t size) const
+    {
+        *reinterpret_cast<size_t*>(_trusted_memory) = size;
+    }
+
+    void set_parent_allocator(allocator* parent)
+    {
+        *reinterpret_cast<allocator**>(static_cast<char*>(_trusted_memory) + sizeof(size_t)) = parent;
+    }
+
+    void set_logger(logger* log)
+    {
+        *reinterpret_cast<logger**>(static_cast<char*>(_trusted_memory) + sizeof(size_t) * 2) = log;
+    }
+
+    void set_mutex()
+    {
+        new (static_cast<char*>(_trusted_memory) + sizeof(size_t) * 3) std::mutex();
     }
 
     size_t get_block_size(void* block) const
@@ -85,47 +123,31 @@ private:
         return *reinterpret_cast<size_t*>(block);
     }
 
-    bool is_block_free(void* block) const
-    {
-        return *reinterpret_cast<bool*>(static_cast<char*>(block) + sizeof(size_t));
-    }
-
-    void set_boundary_tag(void* block, size_t size)
-    {
-        *reinterpret_cast<size_t*>(static_cast<char*>(block) + size - sizeof(size_t)) = size;
-    }
-
-
-    void* get_next_block(void* block) const
-    {
-        return static_cast<char*>(block) + get_block_size(block);
-    }
-
-
-    void* get_previous_block(void* block) const
-    {
-        size_t previous_size = *reinterpret_cast<size_t *>(static_cast<char *>(block) - sizeof(size_t));
-        return static_cast<char *>(block) - previous_size;
-    }
-
-    void set_block_free(void* block, bool is_free)
-    {
-
-        *reinterpret_cast<bool*>(static_cast<char*>(block) + sizeof(size_t)) = is_free;
-
-    }
-
     size_t get_total_size() const
     {
-
-        return get_block_size(_trusted_memory);
-
+        return *reinterpret_cast<const size_t*>(_trusted_memory);
     }
 
+    void* get_parent_allocator() const
+    {
+        return *reinterpret_cast<allocator**>(static_cast<char*>(_trusted_memory) + sizeof(size_t));
+    }
 
-    void coalesce(void* block);
+    void* get_logger()
+    {
+        return *reinterpret_cast<logger**>(static_cast<char*>(_trusted_memory) + sizeof(size_t) * 2);
+    }
 
-    void split_block(void* block, size_t requested_size);
+    std::mutex& get_mutex() const
+    {
+        return *reinterpret_cast<std::mutex*>(static_cast<char*>(_trusted_memory) + sizeof(size_t) * 3);
+    }
+
+    void* get_fit_mode_adress() const
+    {
+        return static_cast<char*>(_trusted_memory) + sizeof(size_t) * 4;
+    }
+
 
 
 };
