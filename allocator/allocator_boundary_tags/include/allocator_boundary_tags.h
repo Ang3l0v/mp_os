@@ -75,6 +75,10 @@ private:
 
 public:
 
+    fit_mode get_fit_mode() const
+    {
+        return *reinterpret_cast<const fit_mode*>(static_cast<const char*>(_trusted_memory) + sizeof(size_t) * 4);
+    }
 
 private:
 
