@@ -73,7 +73,7 @@ allocator_boundary_tags::allocator_boundary_tags(
 {
     std::lock_guard<std::mutex> lock(get_mutex());
 
-    size_t requested_size = value_size * values_count + sizeof(size_t) * 2;
+    size_t requested_size = value_size * values_count + sizeof(size_t) * 3;
 
     void* best_block = nullptr;
     size_t best_size = std::numeric_limits<size_t>::max();

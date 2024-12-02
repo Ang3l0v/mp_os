@@ -100,6 +100,13 @@ private:
     void set_block_size(void* block, size_t size)
     {
         *reinterpret_cast<size_t*>(block) = size;
+        set_footer_size(block, size);
+    }
+
+    void set_footer_size(void* block, size_t size)
+    {
+        void* footer = static_cast<char*>(block) + size - sizeof(size_t);
+        *reinterpret_cast<size_t*>(footer) = size;
     }
 
     void set_total_size(size_t size) const
@@ -162,30 +169,68 @@ private:
         return static_cast<char*>(_trusted_memory) + sizeof(size_t) * 4;
     }
 
+    void* get_prev_block(void* block)
+    {
+        size_t prev_size = *reinterpret_cast<size_t*>(static_cast<char*>(block) - sizeof (size_t));
+        return static_cast<char*>(block) - prev_size;
+    }
+
+
     void split_block(void* block, size_t requested_size)
     {
         size_t block_size = get_block_size(block);
 
-        if (block_size > requested_size + sizeof(size_t) * 2)
+        if (block_size >= requested_size + sizeof(size_t) * 3)
         {
             void* next_block =  static_cast<char*>(block) + requested_size;
-            set_block_size(next_block, block_size - requested_size);
-            set_block_free(next_block, true);
-            set_block_size(block, requested_size);
+
+            size_t remaining_size = block_size - requested_size;
+
+            set_block_size(next_block, requested_size);
+            set_block_free(block, true);
+
+            set_block_size(block, remaining_size);
+            set_block_free(block, false);
         }
     }
 
     void coalesce(void* block)
     {
-        // Объединение соседних свободных блоков
-        void* next_block = get_next_block(block);
-        if (next_block < get_memory_end() && is_block_free(next_block))
+        size_t block_size = get_block_size(block);
+        if (has_prev_block(block))
         {
-            set_block_size(block, get_block_size(block) + get_block_size(next_block));
+            void* previous_block = get_prev_block(block);
+            if (is_block_free(previous_block))
+            {
+                size_t previous_block_size = get_block_size(previous_block);
+                block_size += previous_block_size;
+                set_block_size(previous_block, block_size); // Обновляем размер объединённого блока
+                block = previous_block; // Смещаем текущий блок
+            }
+        }
+
+        if (has_next_block(block))
+        {
+            void* next_block = get_next_block(block);
+            if (is_block_free(next_block))
+            {
+                size_t next_block_size = get_block_size(next_block);
+                block_size += next_block_size;
+                set_block_size(block, block_size); // Обновляем размер объединённого блока
+            }
         }
     }
 
 
+    bool has_next_block(void* block)
+    {
+        return get_next_block(block) < get_memory_end();
+    }
+
+    bool has_prev_block(void* block)
+    {
+        return block > get_data_start();
+    }
 };
 
 #endif //MATH_PRACTICE_AND_OPERATING_SYSTEMS_ALLOCATOR_ALLOCATOR_BOUNDARY_TAGS_H
