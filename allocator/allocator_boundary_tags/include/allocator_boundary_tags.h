@@ -92,7 +92,7 @@ private:
         *reinterpret_cast<bool*>(static_cast<char*>(block) + sizeof(size_t)) = is_free;
     }
 
-    bool is_block_free(void* block)
+    bool is_block_free(void* block) const
     {
         return *reinterpret_cast<bool*>(static_cast<char*>(block) + sizeof(size_t));
     }
@@ -159,7 +159,7 @@ private:
         return static_cast<char*>(_trusted_memory) + sizeof(size_t) * 5;
     }
 
-    void* get_memory_end()
+    void* get_memory_end() const
     {
         return static_cast<char*>(_trusted_memory) + get_total_size();
     }
